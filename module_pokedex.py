@@ -3,12 +3,14 @@ import math
 import sys
 import time
 
+import urllib3
 import threading
 import requests
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, QtGui, QtCore
 from PyQt6.QtCore import QSize
-from PyQt6.QtGui import QPixmap, QIcon
-from PyQt6.QtWidgets import QApplication, QGridLayout, QLineEdit, QPushButton, QWidget, QTableWidget, QTableWidgetItem
+from PyQt6.QtGui import QPixmap, QIcon, QPalette, QColor
+from PyQt6.QtWidgets import QMainWindow, QFrame, QApplication, QGridLayout, QLineEdit, QPushButton, QWidget, QDialog, \
+    QLabel, QTableWidget, QTableWidgetItem
 
 LONGUEUR = 800
 HAUTEUR = 800
@@ -66,18 +68,19 @@ class Pokedex(QWidget):
         self.boutonRecherche = QPushButton("recherche")
         self.boutonRecherche.clicked.connect(lambda: self.ajoutPokemon(self.barreDeRecherche.text()))
 
-        self.tableEquipe = QTableWidget(NB_MAX_POKEMON, 6)
+        self.tableEquipe = QTableWidget(NB_MAX_POKEMON, 7)
         self.tableEquipe.setIconSize(QSize(80, 80))
         self.tableEquipe.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.tableEquipe.setHorizontalHeaderLabels(
             ["Id du Pokémon", "Nom du Pokémon", "Poids du Pokémon", "Taille du Pokémon", "Types du pokémon",
-             "image du pokémon"])
+             "image du pokémon", "Infos complémentaires"])
         self.tableEquipe.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableEquipe.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableEquipe.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableEquipe.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableEquipe.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableEquipe.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableEquipe.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
         self.boutonEffacer = QPushButton("tout effacer")
         self.boutonEffacer.clicked.connect(lambda: self.effacerPokedex())
@@ -104,6 +107,9 @@ class Pokedex(QWidget):
                 self.tableEquipe.setItem(self.nbPokemon, 2, QTableWidgetItem(str(pokemon.poids)))
                 self.tableEquipe.setItem(self.nbPokemon, 3, QTableWidgetItem(str(pokemon.taille)))
                 self.tableEquipe.setItem(self.nbPokemon, 4, QTableWidgetItem(", ".join(pokemon.types)))
+                bouton_info_complementaire = QPushButton()
+                bouton_info_complementaire.setText("plus d'infos...")
+                self.tableEquipe.setCellWidget(self.nbPokemon, 5, bouton_info_complementaire)
                 celluleImage = QTableWidgetItem()
                 pixmapCellule = QPixmap()
                 pixmapCellule.loadFromData(pokemon.donnees_images())
