@@ -107,15 +107,17 @@ class Pokedex(QWidget):
                 self.tableEquipe.setItem(self.nbPokemon, 2, QTableWidgetItem(str(pokemon.poids)))
                 self.tableEquipe.setItem(self.nbPokemon, 3, QTableWidgetItem(str(pokemon.taille)))
                 self.tableEquipe.setItem(self.nbPokemon, 4, QTableWidgetItem(", ".join(pokemon.types)))
-                bouton_info_complementaire = QPushButton()
-                bouton_info_complementaire.setText("plus d'infos...")
-                self.tableEquipe.setCellWidget(self.nbPokemon, 5, bouton_info_complementaire)
+
                 celluleImage = QTableWidgetItem()
                 pixmapCellule = QPixmap()
                 pixmapCellule.loadFromData(pokemon.donnees_images())
                 iconCellule = QIcon(pixmapCellule)
                 celluleImage.setIcon(iconCellule)
                 self.tableEquipe.setItem(self.nbPokemon, 5, celluleImage)
+                bouton_info_complementaire = QPushButton()
+                bouton_info_complementaire.setText("plus d'infos...")
+                bouton_info_complementaire.clicked.connect(lambda: afficher_info_complementaire())
+                self.tableEquipe.setCellWidget(self.nbPokemon, 6, bouton_info_complementaire)
                 self.nbPokemon += 1
                 print(pokemon)
             except Exception as pokemon_non_trouve:
@@ -128,6 +130,9 @@ class Pokedex(QWidget):
                 print(pokemon_non_trouve)
                 threadCouleur = threading.Thread(target=switch_couleur)
                 threadCouleur.start()
+
+            def afficher_info_complementaire(self):
+                pass
 
 
 def main():
