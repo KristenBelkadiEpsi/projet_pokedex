@@ -1,5 +1,5 @@
 # Instructions pour lancer le projet
-## prérequis: avoir Python d'installé
+## prérequis: avoir Python d'installé (version < 3.11)
 
 - Etape 1: Ouvrir un terminal et faire une git clone avec la commande:
 
@@ -20,5 +20,4 @@ pip install -r requirements.txt
 - Etape 4: Exécuter le programme avec la commande:
 
 ```Shell
-python main.py
-```
+python main.py```

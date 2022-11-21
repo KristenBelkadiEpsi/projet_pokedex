@@ -1,19 +1,21 @@
 import json
-import math
 import sys
 import time
 
-import urllib3
+import pyqtgraph
 import threading
 import requests
-from PyQt6 import QtWidgets, QtGui, QtCore
+from PyQt6 import QtWidgets
 from PyQt6.QtCore import QSize
-from PyQt6.QtGui import QPixmap, QIcon, QPalette, QColor
-from PyQt6.QtWidgets import QMainWindow, QFrame, QApplication, QGridLayout, QLineEdit, QPushButton, QWidget, QDialog, \
-    QLabel, QTableWidget, QTableWidgetItem
+from PyQt6.QtGui import QPixmap, QIcon
+from PyQt6.QtWidgets import QApplication, QGridLayout, QLineEdit, QPushButton, QWidget, QDialog, QTableWidget, QTableWidgetItem
 
 LONGUEUR = 800
 HAUTEUR = 800
+
+LONGUEUR_INFOS_COMPLEMENTAIRE = 800
+HAUTEUR_INFOS_COMPLEMENTAIRE = 500
+
 NB_MAX_POKEMON = 9
 
 
@@ -59,6 +61,7 @@ class Pokedex(QWidget):
     def __init__(self):
         super().__init__()
         self.nbPokemon = 0
+        self.listePokemons = []
         self.resize(LONGUEUR, HAUTEUR)
         self.setWindowTitle("Pokédex")
         self.grille = QGridLayout()
@@ -102,6 +105,7 @@ class Pokedex(QWidget):
             try:
                 self.tableEquipe.setRowHeight(self.nbPokemon, 80)
                 pokemon = Pokemon.from_api(nom)
+                self.listePokemons.append(pokemon)
                 self.tableEquipe.setItem(self.nbPokemon, 0, QTableWidgetItem(str(pokemon.id)))
                 self.tableEquipe.setItem(self.nbPokemon, 1, QTableWidgetItem(pokemon.nom))
                 self.tableEquipe.setItem(self.nbPokemon, 2, QTableWidgetItem(str(pokemon.poids)))
@@ -116,10 +120,9 @@ class Pokedex(QWidget):
                 self.tableEquipe.setItem(self.nbPokemon, 5, celluleImage)
                 bouton_info_complementaire = QPushButton()
                 bouton_info_complementaire.setText("plus d'infos...")
-                bouton_info_complementaire.clicked.connect(lambda: afficher_info_complementaire())
+                bouton_info_complementaire.clicked.connect(lambda: self.afficher_info_complementaire(self.nbPokemon))
                 self.tableEquipe.setCellWidget(self.nbPokemon, 6, bouton_info_complementaire)
                 self.nbPokemon += 1
-                print(pokemon)
             except Exception as pokemon_non_trouve:
                 def switch_couleur():
                     self.barreDeRecherche.setStyleSheet("QLineEdit {background-color: rgba(255, 0, 0, 127);}")
@@ -131,8 +134,25 @@ class Pokedex(QWidget):
                 threadCouleur = threading.Thread(target=switch_couleur)
                 threadCouleur.start()
 
-            def afficher_info_complementaire(self):
-                pass
+    def afficher_info_complementaire(self, nbPokemons):
+        indice = nbPokemons - 1
+        pokemon = self.listePokemons[indice]
+        dialogue = QDialog(self)
+        dialogue.setWindowTitle(f"infos complémentaire: {pokemon.nom}")
+        disposition = QGridLayout()
+        x = [1, 2, 3, 4, 5, 6]
+        axe_x = {1: "vie", 2: "attaque", 3: "defense", 4: "attaque spéciale", 5: "defense spéciale", 6: "vitesse"}
+        y = [pokemon.vie, pokemon.attaque, pokemon.defense, pokemon.attaque_speciale, pokemon.defense_speciale, pokemon.vitesse]
+
+        diagramme = pyqtgraph.BarGraphItem(x=x, height=y, width=0.5, brush='g')
+        graphique = pyqtgraph.plot()
+        graphique.setMinimumSize(LONGUEUR_INFOS_COMPLEMENTAIRE, HAUTEUR_INFOS_COMPLEMENTAIRE)
+        graphique.getAxis("bottom").setTicks([[(clef, element) for clef, element in axe_x.items()]])
+        graphique.addItem(diagramme)
+        disposition.addWidget(graphique, 0, 0)
+        dialogue.setLayout(disposition)
+
+        dialogue.show()
 
 
 def main():
